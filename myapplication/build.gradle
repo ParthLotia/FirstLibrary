@@ -63,7 +63,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.example.myapplication'
                 artifactId = 'myapplication'
-                version = '8.0.0'
+                version = '9.0.0'
             }
         }
     }
