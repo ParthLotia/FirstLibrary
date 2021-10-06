@@ -39,19 +39,19 @@ public class ValidateTor {
   /**
    * The Regex matcher.
    */
-  private final com.raywenderlich.android.validatetor.RegexMatcher regexMatcher;
+  private final com.example.myapplication.RegexMatcher regexMatcher;
 
   /**
    * The Card validator.
    */
-  private final com.raywenderlich.android.validatetor.CardValidator cardValidator;
+  private final com.example.myapplication.CardValidator cardValidator;
 
   /**
    * Instantiates a new Validate tor.
    */
   public ValidateTor() {
-    this.regexMatcher = new com.raywenderlich.android.validatetor.RegexMatcher();
-    this.cardValidator = new com.raywenderlich.android.validatetor.CardValidator();
+    this.regexMatcher = new com.example.myapplication.RegexMatcher();
+    this.cardValidator = new com.example.myapplication.CardValidator();
   }
 
   /**
