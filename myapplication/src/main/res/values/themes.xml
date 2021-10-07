@@ -1,10 +1,5 @@
 <resources>
 
-    <style name="Theme.Testing.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
     <style name="Theme.Testing.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Testing.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
