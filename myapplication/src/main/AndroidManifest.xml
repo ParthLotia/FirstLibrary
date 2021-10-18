@@ -2,10 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.myapplication">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+
+
     <application>
+        <activity
+            android:name=".SplashScreen"
+            android:exported="true" />
         <activity
             android:name=".DemoActivity"
             android:exported="true" />
+
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
