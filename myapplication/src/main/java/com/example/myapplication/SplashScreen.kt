@@ -3,11 +3,14 @@ package com.example.myapplication
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -33,6 +36,7 @@ class SplashScreen : AppCompatActivity() {
     var my_btmp: Bitmap? = null
 
     var image: Bitmap? = null
+    var idContact: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -137,23 +141,30 @@ class SplashScreen : AppCompatActivity() {
             checkData()
         } else {
             //   toast("No contacts available!")
+            createNewContact()
         }
         cursor.close()
         return builder
     }
 
     private fun checkData() {
-        for (i in 0 until numberList.size) {
+        if (numberList.size > 0) {
+
+
+            for (i in 0 until numberList.size) {
 //            1 (234) 567-890
-            if (numberList[i].number.equals("1 (234) 567-890", true)) {
+                if (numberList[i].number.equals("(987) 654-3210", true)) {
 
-                editContact(numberList[i].number)
-                break
-            } else {
-                createNewContact()
+                    editContact(numberList[i].number)
+                    break
+                } else {
+                    createNewContact()
 
-                break
+                    break
+                }
             }
+        }else{
+            createNewContact()
         }
     }
 
@@ -162,7 +173,56 @@ class SplashScreen : AppCompatActivity() {
         Toast.makeText(this, "Edit", Toast.LENGTH_SHORT).show()
         Log.e("editContact", "editContact")
 
-        if (Preferences().getImageUrl(this@SplashScreen).toString().isNullOrEmpty()) {
+        //Working
+
+        /*
+        val url = URL(Preferences().getImageUrl(this@SplashScreen).toString())
+        val image = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+
+
+        val i = Intent(Intent.ACTION_INSERT_OR_EDIT)
+        i.type = ContactsContract.Contacts.CONTENT_ITEM_TYPE
+        i.putExtra(ContactsContract.Intents.Insert.NAME, "name")
+        i.putExtra(ContactsContract.Intents.Insert.PHONE, number)
+
+        try {
+            val row = ContentValues().apply {
+                put(
+                    ContactsContract.CommonDataKinds.Photo.PHOTO,
+                    bitmapToByteArray(image)
+                )
+                put(
+                    ContactsContract.Data.MIMETYPE,
+                    ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
+                )
+            }
+            val data = arrayListOf(row)
+            i.putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, data)
+
+        } catch (e: IOException) {
+            Log.e("error", "" + e.message)
+        }
+        startActivity(i)*/
+
+
+        //stackoverflow
+        val uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        val cursor: Cursor? = applicationContext.contentResolver.query(
+            uri,
+            null,
+            null,
+            null,
+            null
+        )
+        while (cursor!!.moveToNext()) {
+
+            if (cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).equals(number,false)){
+                idContact =
+                    cursor!!.getLong(cursor!!.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+            }
+
+        }
+        if (Preferences().getImageUrl(this@SplashScreen).toString().isEmpty()) {
             val url =
                 URL("https://www.fedex.com/content/dam/fedex/us-united-states/shipping/images/2020/Q3/icon_delivery_purple_lg_2143296207.png")
             image = BitmapFactory.decodeStream(url.openConnection().getInputStream())
@@ -171,14 +231,38 @@ class SplashScreen : AppCompatActivity() {
             image = BitmapFactory.decodeStream(url.openConnection().getInputStream())
         }
 
-        val i = Intent(Intent.ACTION_INSERT_OR_EDIT)
-        i.type = ContactsContract.Contacts.CONTENT_ITEM_TYPE
+
+
+
+        val i = Intent(Intent.ACTION_EDIT)
+        val contactUri: Uri =
+            ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, idContact!!)
+        i.data = contactUri
         i.putExtra(ContactsContract.Intents.Insert.NAME, "name")
-        i.putExtra(ContactsContract.Intents.Insert.PHONE, number)
-        i.putExtra(ContactsContract.CommonDataKinds.Photo.PHOTO, bitmapToByteArray(image))
+        try {
+            val row = ContentValues().apply {
+                put(
+                    ContactsContract.CommonDataKinds.Photo.PHOTO,
+                    bitmapToByteArray(image)
+                )
+                put(
+                    ContactsContract.Data.MIMETYPE,
+                    ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
+                )
+            }
+            val data = arrayListOf(row)
+            i.putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, data)
+
+        } catch (e: IOException) {
+            Log.e("error", "" + e.message)
+        }
+        i.putExtra("finishActivityOnSaveCompleted", true)
         startActivity(i)
         finish()
 
+
+
+        //Android Document
 
         /*var mCursor: Cursor? = null
         // The index of the lookup key column in the cursor
@@ -231,16 +315,7 @@ class SplashScreen : AppCompatActivity() {
                 type = ContactsContract.RawContacts.CONTENT_TYPE
                 putExtra(ContactsContract.Intents.Insert.NAME, "test")
                 putExtra(ContactsContract.Intents.Insert.EMAIL, "test@gmail.com")
-                putExtra(
-                    ContactsContract.Intents.Insert.EMAIL_TYPE,
-                    ContactsContract.CommonDataKinds.Email.TYPE_WORK
-                )
                 putExtra(ContactsContract.Intents.Insert.PHONE, "7575078895")
-                putExtra(
-                    ContactsContract.Intents.Insert.PHONE_TYPE,
-                    ContactsContract.CommonDataKinds.Phone.TYPE_WORK
-                )
-
 
                 try {
                     val url = URL(Preferences().getImageUrl(this@SplashScreen).toString())
@@ -268,4 +343,5 @@ class SplashScreen : AppCompatActivity() {
 
 
     }
+
 }
