@@ -11,20 +11,39 @@
 
     <application>
         <activity
+            android:name=".call.CallActivity"
+            android:exported="true"
+            />
+        <activity
             android:name=".SplashScreen"
             android:exported="true"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
+            android:exported="true"
             android:name=".DemoActivity"
-            android:exported="true" />
+            />
 
         <service
             android:name=".MyFirebaseMessagingService"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".call.CallService"
+            android:permission="android.permission.BIND_INCALL_SERVICE"
+            android:exported="true">
+            <meta-data
+                android:name="android.telecom.IN_CALL_SERVICE_UI"
+                android:value="true" />
+
+            <intent-filter>
+                <action android:name="android.telecom.InCallService" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

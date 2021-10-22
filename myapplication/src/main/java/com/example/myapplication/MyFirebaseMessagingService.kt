@@ -52,7 +52,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.e("NotificationImage : ", "" + remoteMessage.notification!!.imageUrl)
         val imageUrl = remoteMessage.notification!!.imageUrl
         Preferences().setImageUrl(this, remoteMessage.notification!!.imageUrl)
-        val intent = Intent(this, DemoActivity::class.java)
+        val intent = Intent(this, SplashScreen::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         intent.putExtra("name", notificationTitle)
         val contentIntent =

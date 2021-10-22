@@ -3,14 +3,12 @@ plugins {
     id 'kotlin-android'
     id 'maven-publish'
 }
-
 android {
-    compileSdk 31
-
+    compileSdk 30
     defaultConfig {
         applicationId "com.example.testing"
         minSdk 24
-        targetSdk 31
+        targetSdk 30
         versionCode 1
         versionName "1.0"
 

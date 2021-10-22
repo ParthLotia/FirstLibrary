@@ -13,7 +13,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.StrictMode
 import android.provider.ContactsContract
 import android.util.Log
@@ -25,11 +24,11 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
-import java.util.ArrayList
+import java.util.*
 
 class DemoActivity : AppCompatActivity() {
-    var token : String? = ""
-    var temp_token : String? = ""
+    var token: String? = ""
+    var temp_token: String? = ""
 
     companion object {
         val PERMISSIONS_REQUEST_READ_CONTACTS = 100
@@ -54,7 +53,7 @@ class DemoActivity : AppCompatActivity() {
         initializeToken()
         if (intent.extras != null) {
             val value = intent.extras!!.getString("name")
-            Log.e("value",""+value)
+            Log.e("value", "" + value)
             loadContacts()
         }
 
@@ -78,6 +77,7 @@ class DemoActivity : AppCompatActivity() {
             Log.e("adsads", token!!)
         })
     }
+
     private fun loadContacts() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
@@ -94,6 +94,7 @@ class DemoActivity : AppCompatActivity() {
 //            listContacts.text = builder.toString()
         }
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>,
         grantResults: IntArray
@@ -107,11 +108,13 @@ class DemoActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun bitmapToByteArray(bitmap: Bitmap?): ByteArray {
         val stream = ByteArrayOutputStream()
         bitmap?.compress(Bitmap.CompressFormat.PNG, 90, stream)
         return stream.toByteArray()
     }
+
     @SuppressLint("Range")
     private fun getContacts(): StringBuilder {
         val builder = StringBuilder()
@@ -325,52 +328,44 @@ class DemoActivity : AppCompatActivity() {
 
     private fun createNewContact() {
         Log.e("createContact", "createContact")
+        Toast.makeText(this@DemoActivity, "New", Toast.LENGTH_SHORT).show()
 
-        val timer = object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                Toast.makeText(this@DemoActivity, "New", Toast.LENGTH_SHORT).show()
-            }
+        val intent =
+            Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI).apply {
+                type = ContactsContract.RawContacts.CONTENT_TYPE
+                putExtra(ContactsContract.Intents.Insert.NAME, "test")
+                putExtra(ContactsContract.Intents.Insert.EMAIL, "test@gmail.com")
+                putExtra(ContactsContract.Intents.Insert.PHONE, "1234567890")
 
-            override fun onFinish() {
-                val intent =
-                    Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI).apply {
-                        type = ContactsContract.RawContacts.CONTENT_TYPE
-                        putExtra(ContactsContract.Intents.Insert.NAME, "test")
-                        putExtra(ContactsContract.Intents.Insert.EMAIL, "test@gmail.com")
-                        putExtra(ContactsContract.Intents.Insert.PHONE, "1234567890")
-
-                        try {
-                            val url = URL(Preferences().getImageUrl(this@DemoActivity).toString())
-                            val image =
-                                BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                            val row = ContentValues().apply {
-                                put(
-                                    ContactsContract.CommonDataKinds.Photo.PHOTO,
-                                    bitmapToByteArray(image)
-                                )
-                                put(
-                                    ContactsContract.Data.MIMETYPE,
-                                    ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
-                                )
-                            }
-                            val data = arrayListOf(row)
-
-                            putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, data)
-                        } catch (e: IOException) {
-                            println(e)
-                        }
+                try {
+                    val url = URL(Preferences().getImageUrl(this@DemoActivity).toString())
+                    val image =
+                        BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                    val row = ContentValues().apply {
+                        put(
+                            ContactsContract.CommonDataKinds.Photo.PHOTO,
+                            bitmapToByteArray(image)
+                        )
+                        put(
+                            ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
+                        )
                     }
-                startActivity(intent)
+                    val data = arrayListOf(row)
+
+                    putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, data)
+                } catch (e: IOException) {
+                    println(e)
+                }
             }
-        }
-        timer.start()
+        startActivity(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         if (intent!!.extras != null) {
             val value = intent.extras!!.getString("name")
-            Log.e("value",""+value)
+            Log.e("value", "" + value)
             loadContacts()
         }
     }

@@ -12,12 +12,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.CountDownTimer
+import android.os.StrictMode
 import android.provider.ContactsContract
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -30,25 +32,41 @@ class SplashScreen : AppCompatActivity() {
     }
 
     var numberList: ArrayList<PhoneNumber> = ArrayList()
-    var contactId: String = ""
     var name: String = ""
-    var photo_stream: InputStream? = null
-    var my_btmp: Bitmap? = null
 
     var image: Bitmap? = null
     var idContact: Long? = null
+    var token: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
+        initializeToken()
         if (intent.extras != null) {
-            for (key in intent.extras!!.keySet()) {
-                val value = intent.extras!!.getString(key)
-                Log.e("here", "Key: $key Value: $value")
-                loadContacts()
-            }
+            val value = intent.extras!!.getString("name")
+            Log.e("value", "" + value)
+            loadContacts()
         }
+    }
+
+    fun initializeToken() {
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            token = task.result
+
+            // Log and toast
+
+            Log.e("adsads", token!!)
+        })
     }
 
     private fun loadContacts() {
@@ -77,6 +95,7 @@ class SplashScreen : AppCompatActivity() {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadContacts()
             } else {
+                Toast.makeText(this,"Please Grant the Permission to Continue to use this application",Toast.LENGTH_SHORT).show()
                 //  toast("Permission must be granted in order to display contacts information")
             }
         }
@@ -153,7 +172,7 @@ class SplashScreen : AppCompatActivity() {
 
             for (i in 0 until numberList.size) {
 //            1 (234) 567-890
-                if (numberList[i].number.equals("(987) 654-3210", true)) {
+                if (numberList[i].number.equals("(757) 507-8895", true)) {
 
                     editContact(numberList[i].number)
                     break
@@ -163,7 +182,7 @@ class SplashScreen : AppCompatActivity() {
                     break
                 }
             }
-        }else{
+        } else {
             createNewContact()
         }
     }
@@ -216,7 +235,9 @@ class SplashScreen : AppCompatActivity() {
         )
         while (cursor!!.moveToNext()) {
 
-            if (cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).equals(number,false)){
+            if (cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    .equals(number, false)
+            ) {
                 idContact =
                     cursor!!.getLong(cursor!!.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
             }
@@ -230,9 +251,6 @@ class SplashScreen : AppCompatActivity() {
             val url = URL(Preferences().getImageUrl(this@SplashScreen).toString())
             image = BitmapFactory.decodeStream(url.openConnection().getInputStream())
         }
-
-
-
 
         val i = Intent(Intent.ACTION_EDIT)
         val contactUri: Uri =
@@ -259,7 +277,6 @@ class SplashScreen : AppCompatActivity() {
         i.putExtra("finishActivityOnSaveCompleted", true)
         startActivity(i)
         finish()
-
 
 
         //Android Document
@@ -342,6 +359,15 @@ class SplashScreen : AppCompatActivity() {
         finish()
 
 
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent!!.extras != null) {
+            val value = intent.extras!!.getString("name")
+            Log.e("value", "" + value)
+            loadContacts()
+        }
     }
 
 }
